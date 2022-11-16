@@ -1,0 +1,153 @@
+# Copyright 2022 The Chromium OS Authors
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+    It contains Fields or Field Group Lists that pertain to the Qualifying
+    Product as a whole.
+
+    This is based on VIF XML file schema of /VIF/Product in
+    https://compliance.usb.org/cv/VendorInfoFile/Schemas/Current/VendorInfoFile.xsd
+
+compatible: "vif,product"
+
+include: base.yaml
+
+properties:
+    usb4-router-list:
+        type: phandle
+        required: false
+        description: |
+            A collection of fields that characterize a USB4 Router
+
+    usb4-drom-vendor-id:
+        type: int
+        required: false
+        description: |
+            The Vendor ID of the Qualifying Product, as provided in the Product
+            Descriptor Entry in USB4 DROM.
+
+            If the Qualifying Product is not a USB4 Peripheral or a USB4 Hub,
+            then this field shall be ignored by Testers.
+
+            If /VIF/Certification_Type is set to 2 (Silicon), then this field
+            shall be ignored by Testers.
+
+    usb4-dock:
+        type: boolean
+        required: false
+        description: |
+            Is the Qualifying Product a Dock as specified in [USB4]?
+
+            If the Qualifying Product is not a USB4 Hub, then this field shall
+            be ignored by Testers.
+
+    usb4-device-hifi-bi-tmu-mode-required:
+        type: boolean
+        required: false
+        description: |
+            Does the Qualifying Product require HiFi Bi-Directional TMU mode in
+            order to be operational?
+
+            If the Qualifying Product is not a USB4 Peripheral or a USB4 Dock,
+            then this field shall be ignored by Testers.
+
+    usb4-num-internal-host-controllers:
+        type: int
+        required: false
+        description: |
+            The number of Internal Host Controllers that the Qualifying Product
+            contains.
+
+            Valid values are in the range 0 - 4.
+
+            If the Qualifying Product does not contain a USB4 Port, then this
+            field shall be ignored by Testers.
+
+            If the Qualifying Product is a USB4 Host or a USB4 Dock, then this
+            field shall be greater than 0.
+
+    usb4-num-pcie-dn-bridges:
+        type: int
+        required: false
+        description: |
+            The number of PCIe downstream bridges in the product that connect to
+            a PCIe Adapter, a Native PCIe device or internal PCIe device.
+
+            Valid values are in the range 0 - 63.
+
+            This field shall be set to 0 unless the Qualifying Product has at
+            least one USB4 Port on which USB4_PCIe_Tunneling_Supported is set
+            to YES.
+
+            If the Qualifying Product does not contain a USB4 Port, then this
+            field shall be ignored by Testers.
+
+    usb4-audio-supported:
+        type: boolean
+        required: false
+        description: |
+            Does the Product implement the USB Audio Class when operating over
+            USB 3.2 or USB 2?
+
+    usb4-hid-supported:
+        type: boolean
+        required: false
+        description: |
+            Does the Product implement the USB Human Interface Device (HID)
+            Class when operating over USB 3.2 or USB 2?
+
+    usb4-printer-supported:
+        type: boolean
+        required: false
+        description: |
+            Does the Product implement the USB Printer Class when operating over
+            USB 3.2 or USB 2?
+
+    usb4-mass-storage-supported:
+        type: boolean
+        required: false
+        description: |
+            Does the Product implement the USB Mass Storage Class when operating
+            over USB 3.2 or USB 2?
+
+    usb4-video-supported:
+        type: boolean
+        required: false
+        description: |
+            Does the Product implement the USB Video (UVC) Class when operating
+            over USB 3.2 or USB 2?
+
+    usb4-comms-networking-supported:
+        type: boolean
+        required: false
+        description: |
+            Does the Product implement the USB Comms/Networking Class when
+            operating over USB 3.2 or USB 2?
+
+    usb4-media-transfer-protocol-supported:
+        type: boolean
+        required: false
+        description: |
+            Does the Product implement the USB Media Transfer Protocol Class
+            when operating over USB 3.2 or USB 2?
+
+    usb4-smart-card-supported:
+        type: boolean
+        required: false
+        description: |
+            Does the Product implement the USB Smart Card Class when operating
+            over USB 3.2 or USB 2?
+
+    usb4-still-image-capture-supported:
+        type: boolean
+        required: false
+        description: |
+            Does the Product implement the USB Still Image Capture Class when
+            operating over USB 3.2 or USB 2?
+
+    usb4-monitor-device-supported:
+        type: boolean
+        required: false
+        description: |
+            Does the Product implement the USB Monitor Class when operating over
+            USB 3.2 or USB 2?

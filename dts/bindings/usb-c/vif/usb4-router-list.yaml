@@ -1,0 +1,19 @@
+# Copyright 2022 The Chromium OS Authors
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+    A list of collection of fields that characterize USB4 Routers.
+
+    This is based on VIF XML file schema of vif:Usb4RouterListType in:
+    https://compliance.usb.org/cv/VendorInfoFile/Schemas/Current/VendorInfoFile.xsd
+
+compatible: "vif,usb4-router-list"
+
+include: base.yaml
+
+properties:
+    usb4-router:
+      type: phandles
+      required: true
+      description: |
+          A collection of fields that characterize a USB4 Router

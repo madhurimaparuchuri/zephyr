@@ -194,6 +194,99 @@ def parse_and_add_sink_pdo_to_xml(xml_ele, pdo_value, pdos_info):
                        constants.PDO_TYPES[pdo_type], {constants.VALUE: str(pdo_type)})
     return power_mw
 
+def parse_and_add_source_pdos_to_xml(xml_ele, source_pdos):
+    new_xml_ele = add_element_to_xml(xml_ele, constants.SOURCE_PDOS)
+    pdos_info = dict()
+    src_max_power = 0
+    for pdo_value in source_pdos:
+        power_mv = parse_and_add_source_pdo_to_xml(new_xml_ele, pdo_value, pdos_info)
+        if power_mv > src_max_power:
+            src_max_power = power_mv
+    add_element_to_xml(xml_ele, constants.NUM_SOURCE_PDOS, None,
+                       {constants.VALUE: str(len(source_pdos))})
+    add_element_to_xml(xml_ele, constants.EPR_SUPPORTED_AS_SOURCE,
+                       attributes={constants.VALUE: constants.FALSE})
+    add_element_to_xml(xml_ele, constants.PD_POWER_AS_SOURCE, f'{src_max_power} mW',
+                       {constants.VALUE: str(src_max_power)})
+
+
+def parse_and_add_source_pdo_to_xml(xml_ele, pdo_value, pdos_info):
+    power_mw = 0
+    xml_ele = add_element_to_xml(xml_ele, constants.SOURCE_PDO)
+    pdo_type = get_pdo_type(pdo_value)
+    if pdo_type == constants.PDO_TYPE_FIXED:
+        current = pdo_value & 0x3ff
+        current_ma = current * 10
+        voltage = (pdo_value >> 10) & 0x3ff
+        voltage_mv = voltage * 50
+        power_mw = (current_ma * voltage_mv) // 1000
+        add_element_to_xml(xml_ele, constants.SOURCE_PDO_PEAK_CURRENT, f'100% IOC',
+                           {constants.VALUE: "0"})
+        add_element_to_xml(xml_ele, constants.SOURCE_PDO_VOLTAGE, f'{voltage_mv} mV',
+                           {constants.VALUE: str(voltage)})
+        add_element_to_xml(xml_ele, constants.SOURCE_PDO_MAX_CURRENT,
+                           f'{current_ma} mA',
+                           {constants.VALUE: str(current)})
+    elif pdo_type == constants.PDO_TYPE_BATTERY:
+        max_voltage = (pdo_value >> 20) & 0x3ff
+        max_voltage_mv = max_voltage * 50
+        min_voltage = (pdo_value >> 10) & 0x3ff
+        min_voltage_mv = min_voltage * 50
+        power = pdo_value & 0x3ff
+        power_mw = power * 250
+        add_element_to_xml(xml_ele, constants.SOURCE_PDO_MIN_VOLTAGE,
+                           f'{min_voltage_mv} mV',
+                           {constants.VALUE: str(min_voltage)})
+        add_element_to_xml(xml_ele, constants.SOURCE_PDO_MAX_VOLTAGE,
+                           f'{max_voltage_mv} mV',
+                           {constants.VALUE: str(max_voltage)})
+        add_element_to_xml(xml_ele, constants.SOURCE_PDO_MAX_POWER, f'{power_mw} mW',
+                           {constants.VALUE: str(power)})
+    elif pdo_type == constants.PDO_TYPE_VARIABLE:
+        max_voltage = (pdo_value >> 20) & 0x3ff
+        max_voltage_mv = max_voltage * 50
+        min_voltage = (pdo_value >> 10) & 0x3ff
+        min_voltage_mv = min_voltage * 50
+        current = pdo_value & 0x3ff
+        current_ma = current * 10
+        power_mw = (current_ma * max_voltage_mv) // 1000
+        add_element_to_xml(xml_ele, constants.SOURCE_PDO_PEAK_CURRENT, f'100% IOC',
+                           {constants.VALUE: "0"})
+        add_element_to_xml(xml_ele, constants.SOURCE_PDO_MIN_VOLTAGE,
+                           f'{min_voltage_mv} mV',
+                           {constants.VALUE: str(min_voltage)})
+        add_element_to_xml(xml_ele, constants.SOURCE_PDO_MAX_VOLTAGE,
+                           f'{max_voltage_mv} mV',
+                           {constants.VALUE: str(max_voltage)})
+        add_element_to_xml(xml_ele, constants.SOURCE_PDO_MAX_CURRENT,
+                           f'{current_ma} mA',
+                           {constants.VALUE: str(current)})
+    elif pdo_type == constants.PDO_TYPE_AUGUMENTED:
+        pps = (pdo_value >> 28) & 0x03
+        if pps:
+            raise ValueError(f'ERROR: Invalid PDO_TYPE {pdo_value}')
+        pps_max_voltage = (pdo_value >> 17) & 0xff
+        pps_max_voltage_mv = pps_max_voltage * 100
+        pps_min_voltage = (pdo_value >> 8) & 0xff
+        pps_min_voltage_mv = pps_min_voltage * 100
+        pps_current = pdo_value & 0x7f
+        pps_current_ma = pps_current * 50
+        power_mw = (pps_current_ma * pps_max_voltage_mv) // 1000
+        add_element_to_xml(xml_ele, constants.SOURCE_PDO_MIN_VOLTAGE,
+                           f'{pps_min_voltage_mv} mV',
+                           {constants.VALUE: str(pps_min_voltage)})
+        add_element_to_xml(xml_ele, constants.SOURCE_PDO_MAX_VOLTAGE,
+                           f'{pps_max_voltage_mv} mV',
+                           {constants.VALUE: str(pps_max_voltage)})
+        add_element_to_xml(xml_ele, constants.SOURCE_PDO_MAX_CURRENT,
+                           f'{pps_current_ma} mA',
+                           {constants.VALUE: str(pps_current)})
+    else:
+        raise ValueError(f'ERROR: Invalid PDO_TYPE {pdo_value}')
+    add_element_to_xml(xml_ele, constants.SOURCE_PDO_SUPPLY_TYPE,
+                       constants.PDO_TYPES[pdo_type], {constants.VALUE: str(pdo_type)})
+    return power_mw
+
 
 def parse_and_add_controller_and_data_to_xml(xml_ele, cad):
     xml_ele = add_element_to_xml(xml_ele, cad.basename)
@@ -230,6 +323,8 @@ def parse_and_add_node_to_xml(xml_ele, node):
                                str(node.props[prop].val))
         elif node.props[prop].name == constants.SINK_PDOS:
             parse_and_add_sink_pdos_to_xml(xml_ele, node.props[prop].val)
+        elif node.props[prop].name == constants.SOURCE_PDOS:
+            parse_and_add_source_pdos_to_xml(xml_ele, node.props[prop].val)
         elif isinstance(node.props[prop].val, list):
             parse_and_add_array_to_xml(xml_ele, node.props[prop])
         elif isinstance(node.props[prop].val, edtlib.Node):

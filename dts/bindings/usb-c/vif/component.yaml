@@ -1,0 +1,1414 @@
+# Copyright 2022 The Chromium OS Authors
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+    A collection of fields that identify a component to be tested
+    
+    This is based on VIF XML file schema of /VIF/Component in
+    https://compliance.usb.org/cv/VendorInfoFile/Schemas/Current/VendorInfoFile.xsd
+
+compatible: "vif,component"
+
+include: base.yaml
+
+properties:
+    port-label:
+        type: string
+        required: false
+        description: |
+            To be provided by the Vendor. This field shall correspond with the 
+            port label given on the device picture submitted to USB-IF by the 
+            Vendor along with the VIF.
+            
+            If VIF_Product_Type is not set to 0 (Port Product) this field shall 
+            be ignored by Testers.
+            
+            This field shall be unique to each Component.
+            
+            On all Components for which DFP_VDO_Port_Number is required, this 
+            field shall begin with one or more digits that, when converted to an 
+            integer, shall be set equal to it.
+
+    connector-type:
+        type: int
+        required: false
+        description: |
+            The connector type of a Port. Valid options are:
+                0 - Type-A (includes mini-A and micro-A)
+                1 - Type-B (includes mini-B, micro-B, and Components that present 
+                a Type-A plug)
+                2 - USB Type-C (includes captive cable Components that present a 
+                USB Type-C plug)
+                3 - Micro A/B
+            
+            If VIF_Product_Type is not set to 0 (Port Product), then this field 
+            shall be ignored by Testers.
+            
+            If the Component does not have an accessible port and presents a 
+            Type-A plug, then set this field to 1 (Type-B) and set Captive_Cable 
+            to YES.
+            
+            If the Component does not have an accessible port and presents a USB 
+            Type-C plug, then set this field to 2 and set Captive_Cable to YES.
+
+    usb4-supported:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether or not this Component supports USB4.
+            
+            If VIF_Product_Type is not set to 0 (Port Product) or 1 (Cable), then 
+            this field shall be ignored by Testers.
+            
+            If Connector_Type is not set to 2 (USB Type-C), then this field shall 
+            be ignored by Testers.
+
+    usb-pd-support:
+        type: boolean
+        required: false
+        description: |
+            Does this product support USB Power Delivery?
+            
+            If VIF_Product_Type is set to 0 (Port Product) and Connector_Type is 
+            not set to 2 (Type-C), then this field shall be set to NO.
+
+    pd-port-type:
+        type: int
+        required: false
+        description: |
+            The PD capabilities of the Qualifying Product.  
+            Valid options are:
+                0 - Consumer Only (asserts Rd all the time)
+                1 - Consumer/Provider (asserts Rd at startup and can be directed 
+                to assert Rp)
+                2 - Provider/Consumer (asserts Rp at startup and can be directed 
+                to assert Rd)
+                3 - Provider Only (asserts Rp)
+                4 - DRP (toggles between asserting Rp and Rd)
+                5 - eMarker (connects to its partner through a captive eMarker 
+                cable).
+
+            If VIF_Product_Type is not set to 0 (Port Product), then this field 
+            shall be ignored by Testers.
+
+            If USB_PD_Support is not set to YES), then this field shall be 
+            ignored by Testers.
+
+            If Connector_Type is not set to 2 (Type-C), then this field shall be 
+            ignored by Testers.
+
+            If USB4_Supported is set to YES, then this field shall not be set to 
+            5 (eMarker).
+
+    type-c-state-machine:
+        type: int
+        required: false
+        description: |
+            Indicates which Type-C connection state machine is implemented on the
+            DUT. 
+            
+            If Connector_Type is not set to 2 (Type-C) then this field shall be 
+            ignored by Testers. 
+            
+            If USB_PD_Support is set to YES and PD_Port_Type is equal to 0 
+            (Consumer Only) or 5 (eMarker), then valid options are:
+                1 - SNK
+
+            If USB_PD_Support is set to YES and PD_Port_Type is equal to 1 
+            (Consumer/Provider), then valid options are:
+                1 - SNK
+                2 - DRP
+            
+            If USB_PD_Support is set to YES and PD_Port_Type is equal to 2 
+            (Provider/Consumer), then valid options are:
+                0 - SRC
+                2 - DRP
+
+            If USB_PD_Support is set to YES and PD_Port_Type is equal to 3 
+            (Provider only), then valid options are:
+                0 - SRC
+            
+            If USB_PD_Support is set to YES and PD_Port_Type is equal to 4 
+            (DRP), then valid options are:
+                2 - DRP
+
+            If USB_PD_Support is set to NO, then valid options are:
+                0 - SRC
+                1 - SNK
+                2 - DRP
+
+    port-battery-powered:
+        type: boolean
+        required: false
+        description: |
+            Can this Component be powered by one or more batteries?
+            
+            If VIF_Product_Type is not set to 0 (Port Product), then this field 
+            shall be ignored by Testers.
+
+    bc-1-2-support:
+        type: int
+        required: false
+        description: |
+            What Battery Charging 1.2 features does the Qualifying Product 
+            support?
+            
+            If Port_Battery_Powered is set to YES and Type_C_State_Machine is 
+            set to 2 (DRP), then valid options are:
+                0 - None
+                1 - Portable Device
+                2 - Charging Port
+                3 - Both
+            If Port_Battery_Powered is set to YES and Connector_Type is set to 1 
+            (Type-B) or 3 (Micro A/B), then valid options are:
+                0 - None
+                1 - Portable Device
+            If Port_Battery_Powered is set to YES and Type_C_State_Machine is 
+            set to 1 (SNK), then valid options are:
+                0 - None
+                1 - Portable Device
+            If Connector_Type is set to 0 (Type-A), then valid options are:
+                0 - None
+                2 - Charging Port
+            If Connector_Type is set to 2 (Type-C) and Type_C_State_Machine is 
+            set to 0 (SRC), then valid options are:
+                0 - None
+                2 - Charging Port
+            If Port_Battery_Powered is set to NO and Connector_Type is set to 2 
+            (Type-C) and Type_C_State_Machine is set to 2 (DRP), then valid 
+            options are:
+                0 - None
+                2 - Charging Port
+            If Port_Battery_Powered is set to NO and Connector_Type is set to 1 
+            (Type-B), then valid options are:
+                0 - None
+            If Port_Battery_Powered is set to NO and Type_C_State_Machine is set 
+            to 1 (SNK), then valid options are:
+                0 - None
+            If VIF_Product_Type is not set to 0 (Port Product), then this field 
+            shall be ignored by Testers.
+
+    pd-spec-revision-major:
+        type: int
+        required: false
+        description: |
+            The Major Revision number of the highest PD Specification the 
+            Qualifying Product supports. Valid values are in the range 2 - 9.
+
+            If USB4_Supported is set to YES, then the Complete PD Specification 
+            Number shall be greater than or equal to 3020h. In particular, this 
+            field shall be greater than or equal to 3.
+
+    pd-spec-revision-minor:
+        type: int
+        required: false
+        description: |
+            The Minor Revision number of the highest PD Specification the 
+            Qualifying Product supports. Valid values are in the range 0 - 9.
+            
+            If USB4_Supported is set to YES, then the Complete PD Specification 
+            Number shall be greater than or equal to 3020h.
+
+    pd-spec-version-major:
+        type: int
+        required: false
+        description: |
+            The Major Version number of the highest PD Specification the 
+            Qualifying Product supports. Valid values are in the range 0 - 9.
+            
+            If USB4_Supported is set to YES, then the Complete PD Specification 
+            Number shall be greater than or equal to 3020h.
+
+    pd-spec-version-minor:
+        type: int
+        required: false
+        description: |
+            The Minor Version number of the highest PD Specification the 
+            Qualifying Product supports. Valid values are in the range 0 - 9.
+
+            If USB4_Supported is set to YES, then the Complete PD Specification 
+            Number shall be greater than or equal to 3020h.
+
+    pd-specification-revision:
+        type: int
+        required: false
+        description: |
+            Which revision of the PD Specification is the Qualifying Product 
+            compliant with? 
+            Valid options are:
+                1 - Revision 2
+                2 - Revision 3
+            If USB4_Supported is set to YES, then this field shall be set to 2 
+            (Revision 3).
+            If PD_Spec_Revision_Major is set to 2, this field shall be set to 1 
+            (Revision 2).
+            If PD_Spec_Revision_Major is set to 3 or higher, this field shall be 
+            set to 2 (Revision 3).
+            If USB4_Supported is set to YES, then this field shall be set to 2 
+            (Revision 3)
+
+    sop-capable:
+        type: boolean
+        required: false
+        description: |
+            Does the Qualifying Product support the SOP protocol?
+
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker), then this field shall be set to NO.
+            
+            If VIF_Product_Type is set to 0 (Port Product) and PD_Port_Type is 
+            not set to 5 (eMarker), then this field shall be set to YES.
+
+    sop-p-capable:
+        type: boolean
+        required: false
+        description: |
+            Does the Qualifying Product support the SOP’ protocol?
+            
+            If PD_Port_Type is set to 5 (eMarker), then this field shall be set 
+            to YES.
+            
+            If USB4_DFP_Supported is YES then this field shall be set to YES.
+            
+            If VIF_Product_Type is set to 1 (Cable), then this field shall be 
+            set to YES.
+
+    sop-pp-capable:
+        type: boolean
+        required: false
+        description: |
+            Does the Qualifying Product support the SOP’’ protocol?
+            
+            If SOP_P_Capable is not set to YES, then this field shall be ignored 
+            by Testers.
+            
+            If PD_Port_Type is set to 5 (eMarker), then this field shall be set 
+            to NO.
+            
+            If USB4_DFP_Supported is YES then this field shall be set to YES.   
+
+    sop-p-debug-capable:
+        type: boolean
+        required: false
+        description: |
+            Does the Qualifying Product support the SOP’_Debug protocol?
+
+    sop-pp-debug-capable:
+        type: boolean
+        required: false
+        description: |
+            Does the Qualifying Product support the SOP’’_Debug protocol?
+
+    manufacturer-info-supported-port:
+        type: boolean
+        required: false
+        description: |
+            Is the Get_Manufacturer_Info request (with Manufacturer Info Target 
+            set to 0), supported by this Component?
+            
+            If PD_Specification_Revision is not set to 2 (Revision 3), then this 
+            field shall be ignored by Testers.
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+
+    manufacturer-info-vid-port:
+        type: int
+        required: false
+        description: |
+            The Product ID, as assigned by the manufacturer of the Qualifying 
+            Product. The valid values in the range 0h - FFFFh (0 - 65535).
+            
+            If Manufacturer_Info_Supported_Port is not set to YES, then this 
+            field shall be ignored by Testers.
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+            
+            Note: this is the Vendor ID returned in a response to a 
+            Get_Manufacturer_Info message in which Manufacturer Info Target is 
+            set to Port/Cable Plug.
+
+    manufacturer-info-pid-port:
+        type: int
+        required: false
+        description: |
+            The Product ID, as assigned by the manufacturer of the Qualifying 
+            Product. The valid values in the range 0h - FFFFh (0 - 65535).
+            
+            If Manufacturer_Info_Supported_Port is not set to YES, then this 
+            field shall be ignored by Testers.
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+            
+            Note: this is the Product ID returned in a response to a 
+            Get_Manufacturer_Info message in which Manufacturer Info Target is 
+            set to Port/Cable Plug.
+
+    usb-comms-capable:
+        type: boolean
+        required: false
+        description: |
+            Is the Qualifying Product capable of enumerating as a USB host or 
+            device?
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+            
+            If USB4_Supported is set to YES, then this field shall be set to YES
+
+    dr-swap-to-dfp-supported:
+        type: boolean
+        required: false
+        description: |
+            Set to YES if Qualifying Product can respond with an Accept to a 
+            DR_Swap request to switch from a UFP to a DFP.
+            
+            If Type_C_State_Machine is set to DRP and Type_C_Can_Act_As_Host is 
+            set to YES and Type_C_Can_Act_As_Device is set to NO then this field 
+            shall be set to YES.
+            
+            If Type_C_State_Machine is set to SNK and either 
+            Type_C_Can_Act_As_Host or Type_C_Is_Alt_Mode_Controller is set to 
+            YES, then this field shall be set to YES.
+            
+            If Type_C_State_Machine is set to SRC and Type_C_Can_Act_As_Device 
+            is set to YES, then this field shall be set to YES.
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+            
+            If USB4_DFP_Supported is set to YES and Type_C_Port_On_Hub is set to 
+            NO, then this field shall be set to YES.
+
+    dr-swap-to-ufp-supported:
+        type: boolean
+        required: false
+        description: |
+            Set to YES if Qualifying Product can respond with an Accept to a 
+            DR_Swap request to switch from a DFP to a UFP.
+            
+            If Type_C_State_Machine is set to DRP and Type_C_Can_Act_As_Device 
+            is set to YES and Type_C_Can_Act_As_Host is set to NO then this 
+            field shall be set to YES.
+            
+            If Type_C_State_Machine is set to SNK and either 
+            Type_C_Can_Act_As_Host or Type_C_Is_Alt_Mode_Controller is set to 
+            YES, then this field shall be set to YES.
+            
+            If Type_C_State_Machine is set to SRC and Type_C_Can_Act_As_Device 
+            is set to YES, then this field shall be set to YES.
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+
+    unconstrained-power:
+        type: boolean
+        required: false
+        description: |
+            Set this field to YES if either the Qualifying Product has an 
+            external power source available that is sufficient to adequately 
+            power the system while charging external devices or the Qualifying 
+            Product’s primary function is to charge external devices.
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+
+    vconn-swap-to-on-supported:
+        type: boolean
+        required: false
+        description: |
+            Set to YES if Qualifying Product can respond with an Accept to a 
+            VCONN_Swap message requesting it to start sourcing VCONN.
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+
+    vconn-swap-to-off-supported:
+        type: boolean
+        required: false
+        description: |
+            Set to YES if Qualifying Product can respond with an Accept to a 
+            VCONN_Swap message requesting it to stop sourcing VCONN.
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+            
+            If Type_C_Sources_VCONN is set to YES, then this field shall be set 
+            to YES.
+
+    responds-to-discov-sop-ufp:
+        type: boolean
+        required: false
+        description: |
+            Set to YES if the Qualifying Product can respond successfully to a 
+            Discover Identity command from its port partner using SOP when 
+            acting as an Upstream Facing Port.
+            • If this field is set to YES, then the Qualifying Product should 
+            respond to a Discover Identity command with an ACK.
+            • If this field is set to NO and Responds_To_Discov_SOP_DFP is set 
+            to YES, then the Qualifying Product should respond to a Discover 
+            Identity command with an NAK.
+            • If this field is set to NO and Responds_To_Discov_SOP_DFP is set 
+            to NO, then the Qualifying Product should ignore a Discover Identity 
+            command if PD_Specification_Revision is set to 1 (Revision 2) and 
+            should respond with Not_Supported if PD_Specification_Revision is set 
+            to 2 (Revision 3).
+            
+            If USB4_UFP_Supported is set to YES, then this field shall be set to 
+            YES.
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+
+    responds-to-discov-sop-dfp:
+        type: boolean
+        required: false
+        description: |
+            Set to YES if the Qualifying Product can respond successfully to a 
+            Discover Identity command from its port partner using SOP when acting 
+            as a Downstream Facing Port.
+            • If this field is set to YES, then the Qualifying Product should 
+            respond to a Discover Identity command with an ACK.
+            • If this field is set to NO and Responds_To_Discov_SOP_UFP is set 
+            to YES, then the Qualifying Product should respond to a Discover 
+            Identity command with an NAK.
+            • If this field is set to NO and Responds_To_Discov_SOP_UFP is set 
+            to NO, then the Qualifying Product should ignore a Discover Identity 
+            command if PD_Specification_Revision is set to 1 (Revision 2) and 
+            should respond with Not_Supported if PD_Specification_Revision is 
+            set to 2 (Revision 3).
+            
+            If this Component is a USB4 DFP, then this field shall be set to YES.
+            
+            If the Complete PD Specification Number is greater than or equal to 
+            3020h, and the Qualifying Product has more than one port on which 
+            Product_Type_DFP_SOP is set to any of 1 (PDUSB Hub), 2 (PDUSB Host), 
+            or 3 (Power Brick), then this field shall be set to YES.
+            
+            If USB4_DFP_Supported is set to YES, then this field shall be set to 
+            YES.
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+
+    attempts-discov-sop:
+        type: boolean
+        required: false
+        description: |
+            Set to YES if the Qualifying Product can send a Discover Identity 
+            command to its port partner using SOP. Set to NO otherwise.
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+            
+            If USB4_DFP_Supported is set to YES, then this field shall be set to 
+            YES.
+
+    power-interruption-available:
+        type: int
+        required: false
+        description: |
+            Which Power Interruption Events can generate a Fast Role Swap?
+            
+            Valid values are:
+            0 - No Interruption Possible
+            1 - AC mains/wall power Only
+            2 - DC Power Only
+            3 - AC mains/wall power and DC Power
+            
+            If VIF_Product_Type is not set to 0 (Port Product), or if 
+            USB_PD_Support is not set to YES, then this field shall be ignored 
+            by testers.
+
+    chunking-implemented-sop:
+        type: boolean
+        required: false
+        description: |
+            Does this Qualifying Product implement an extended message chunking 
+            layer, as defined in Chapter 6 of [PowerDelivery3.0]?
+            
+            If PD_Specification_Revision is not set to 2 (Revision 3), then this 
+            field shall be ignored by Testers.
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+
+    data-reset-supported:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether or not this Port responds to a Data_Reset message 
+            with an Accept message.
+            
+            If the Complete PD Specification Number is less than 3020h, then 
+            this field shall be ignored by testers.
+            
+            If VIF_Product_Type is not set to 0 (Port Product), then this field 
+            shall be ignored by Testers.
+            
+            If USB4_Supported is set to YES, then this field shall be set to YES
+
+    enter-usb-supported:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether this Component responds to an Enter_USB message 
+            with an Accept or Reject message.
+            
+            If the Complete PD Specification Number is less than 3020h, then 
+            this field shall be ignored by testers.
+            
+            If VIF_Product_Type is not set to 0 (Port Product) or 1 (Cable), 
+            then this field shall be ignored by Testers.
+            
+            If VIF_Product_Type is set to 1 (Cable) and Product_Type is not 
+            set, then this field shall be ignored by Testers.
+            
+            If USB4_Supported is set to YES, and Product_Type is set to any 
+            value other than 3 (Passive Cable), then this field shall be set to 
+            YES.
+            
+            If VIF_Product_Type is set to 1 (Cable) and Product_Type is not set, 
+            then this field shall be ignored by Testers.
+            
+            If Product_Type is set to 3 (Passive Cable), then this field shall 
+            be set to NO.
+
+    unchunked-extended-messages-supported:
+        type: boolean
+        required: false
+        description: |
+            Does this Qualifying Product set the Unchunked Extended Messages 
+            Supported bit, as defined in Chapter 6 of [PowerDelivery3.0]?
+            
+            If PD_Specification_Revision is not set to 2 (Revision 3), then this 
+            field shall be ignored by Testers.
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+
+    security-msgs-supported-sop:
+        type: boolean
+        required: false
+        description: |
+            Set to YES if the Qualifying Product responds to a Security_Request 
+            message with a Security_Response message.
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+            
+            If PD_Specification_Revision is not set to 2 (Revision 3), then this 
+            field shall be ignored by Testers.
+
+    num-fixed-batteries:
+        type: int
+        required: false
+        description: |
+            The number of non-removable batteries in the device of which the 
+            Qualifying Product is a part. Valid values are in the range 0 - 4.
+            
+            If Port_Battery_Powered is set to YES, then at least one of this 
+            field and Num_Swappable_Battery_Slots shall be non-zero.
+            
+            If PD_Specification_Revision is not set to 2 (Revision 3), then this 
+            field shall be ignored by Testers.
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+            
+            This field shall be the same for all Components for which it is
+            required.
+
+    num-swappable-battery-slots:
+        type: int
+        required: false
+        description: |
+            The number of slots for removable batteries in the device of which 
+            the Qualifying Product is a part. Valid values are in the range 0 - 4.
+            
+            If Port_Battery_Powered is set to YES, then at least one of this 
+            field and Num_Fixed_Batteries shall be non-zero.
+            
+            If PD_Specification_Revision is not set to 2 (Revision 3), then this 
+            field shall be ignored by Testers.
+            
+            If VIF_Product_Type is set to 1 (Cable) or PD_Port_Type is set to 5 
+            (eMarker) then this field shall be ignored by Testers.
+            
+            This field shall be the same for all Components for which it is required.
+
+    id-header-connector-type-sop:
+        type: int
+        required: false
+        description: |
+            Is this connector a plug or a receptacle?
+            
+            Valid options are:
+            2 - USB Type-C Receptacle
+            3 - USB Type-C Plug
+            
+            If VIF_Product_Type is not set to 0 (Port Product), this field shall 
+            be ignored by Testers.
+            If PD_Specification_Revision is not set to 2 (Revision 3), this 
+            field shall be ignored by Testers.
+
+    type-c-can-act-as-host:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether this Component can communicate with USB 2.0 or 
+            USB 3.2 as a host or as the Downstream Facing Port of a hub.
+            
+            If USB_Comms_Capable is set to NO, then this field shall be set to NO.
+            
+            If USB_Comms_Capable is set to YES and Type_C_Can_Act_As_Device is 
+            set to NO, then this field shall be set to YES.
+            
+            If USB_PD_Support is not set to YES and Type_C_State_Machine is set 
+            to 1 (SNK), then this field shall be set to NO.
+            
+            If PD_Port_Type is set to 5 (eMarker), then this field shall be set 
+            to NO.
+            
+            If USB4_DFP_Supported is set to YES, then this field shall be set to 
+            YES.
+            
+            The Qualifying Product shall have no more than one field in which 
+            USB_Comms_Capable is set to YES and this field is set to NO.
+
+    type-c-can-act-as-device:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether this Component can communicate with USB 2.0 or 
+            USB 3.2 as a device or as the Upstream Facing Port of a hub.
+            
+            If USB_Comms_Capable is set to NO, then this field shall be set to 
+            NO.
+            
+            If USB_Comms_Capable is set to YES and Type_C_Can_Act_As_Host is set 
+            to NO, then this field shall be set to YES.
+            
+            If PD_Port_Type is set to 5 (eMarker), then this field shall be set 
+            to YES.
+            
+            If USB_PD_Support is not set to YES and Type_C_State_Machine is set 
+            to 0 (SRC), then this field shall be set to NO.
+            
+            If USB4_UFP_Supported is set to YES, then this field shall be set to 
+            YES.
+
+    type-c-implements-try-src:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether this Component supports the Try.SRC state when 
+            transitioning out of AttachWait.SNK.
+            
+            At most one of Type_C_Implements_Try_SRC and 
+            Type_C_Implements_Try_SNK may be set to YES.
+            
+            If Type_C_State_Machine is not set to 2 (DRP) then this field shall 
+            be ignored by Testers.
+
+    type-c-implements-try-snk:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether this Component supports the Try.SNK state when 
+            transitioning out of AttachWait.SRC.
+            
+            At most one of Type_C_Implements_Try_SRC and 
+            Type_C_Implements_Try_SNK may be set to YES.
+            
+            If Type_C_State_Machine is not set to 2 (DRP) then this field shall 
+            be ignored by Testers.
+
+    type-c-supports-audio-accessory:
+        type: boolean
+        required: false
+        description: |
+            Does this Component support communication with an Audio Accessory?
+
+    type-c-supports-vconn-powered-accessory:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether the non-source port supports communication with a 
+            Vconn Powered Accessory.
+            
+            If PD_Port_Type is not set to 0 (Consumer Only), then this field 
+            shall be ignored by Testers.
+
+    type-c-is-vconn-powered-accessory:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether this Component is a Vconn Powered Accessory.
+            
+            If PD_Port_Type is set to 3 (Provider), then this field shall be 
+            ignored by Testers.
+            
+            If PD_Port_Type is set to 5 (eMarker), then this field shall be set 
+            to NO.
+            
+            If Captive_Cable is not set to YES, then this field shall be set to 
+            NO.
+
+    type-c-is-debug-target-src:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether this Component supports the 
+            UnorientedDebugAccessory.SRC state and optionally the 
+            OrientedDebugAccessory.SRC state.
+            
+            If Type_C_State_Machine is not set to 0 (SRC) or 2 (DRP) then this 
+            field shall be ignored by Testers.
+
+    type-c-is-debug-target-snk:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether this Component supports the DebugAccessory.SNK 
+            state.
+            
+            If Type_C_State_Machine is not set to 1 (SNK) or 2 (DRP) then this 
+            field shall be ignored by Testers.
+
+    captive-cable:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether this Component has a captive cable. Any Component 
+            that presents a Type-A or USB Type-C plug is considered to have a 
+            captive cable, even if there is nothing visible that looks like a 
+            cable (e.g., a USB thumb-drive).
+            
+            This field and Type_C_Sources_VCONN cannot both be set to YES.
+            
+            If Connector_Type is not set to 1 (Type-B) or 2 (Type-C) then this 
+            field shall be ignored by Testers.
+            
+            If PD_Port_Type is set to 5 (eMarker), then this field shall be set 
+            to YES.
+
+    captive-cable-is-emarked:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether this Component’s captive cable is an 
+            Electronically Marked Cable.
+            
+            If PD_Port_Type is set to 5 (eMarker), this field shall be ignored 
+            by testers.
+            
+            If USB_PD_Support is not set to YES or Captive_Cable is not set to 
+            YES then this field shall be ignored by testers.
+
+    rp-value:
+        type: int
+        required: false
+        description: |
+            Indicates what Rp value a source port presents upon connect.
+            
+            Valid options are:
+            0 - Default
+            1 - 1.5A
+            2 - 3A
+            
+            If Type_C_State_Machine is not set to 0 (SRC) or 2 (DRP) then this 
+            field shall be ignored by Testers.
+
+    type-c-port-on-hub:
+        type: boolean
+        required: false
+        description: |
+            Is this Component part of a PDUSB Hub?
+            
+            If PD_Port_Type is set to 5 (eMarker), then this field shall be set 
+            to NO.
+
+    type-c-power-source:
+        type: int
+        required: false
+        description: |
+            Indicates whether this Component is powered externally, through the 
+            Upstream Facing Port, or either ("Both").
+            
+            Valid options are:
+            0 - Externally Powered
+            1 - UFP-powered
+            2 - Both
+
+    type-c-sources-vconn:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether this Component sources Vconn.
+            
+            If VCONN_Swap_To_On_Supported is set to YES, then this field shall 
+            be set to YES.
+            
+            This field and Captive_Cable shall not both be set to YES.
+            
+            If PD_Port_Type is set to 5 (eMarker), then this field shall be set 
+            to NO.
+
+    type-c-is-alt-mode-controller:
+        type: boolean
+        required: false
+        description: |
+            Can this Component act as an Alternate Mode Controller?
+            
+            If USB_PD_Support is not set to YES, then this field shall be 
+            ignored by Testers.
+            
+            If Attempts_Discov_SOP is not set to YES, then this field shall be 
+            set to NO.
+            
+            If PD_Port_Type is set to 5 (eMarker), then this field shall be set 
+            to NO.
+
+    type-c-is-alt-mode-adapter:
+        type: boolean
+        required: false
+        description: |
+            Can this Component act as an Alternate Mode Device?
+            
+            If USB_PD_Support is not set to YES, then this field shall be 
+            ignored by Testers.
+            
+            If Type_C_Can_Act_As_Device is not set to YES, then this field shall 
+            be set to NO.
+            
+            If Responds_To_Discov_SOP_UFP is not set to YES, then this field 
+            shall be set to NO.
+
+    host-supports-usb-data:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether this Component can act as a USB Data Downstream 
+            Facing Port.
+            
+            If Connector_Type is not set to 0 (Type-A), then this field shall be 
+            set to YES.
+            
+            If the Qualifying Product has no Components on which 
+            Type_C_State_Machine is set to 0 (SRC) or 2 (DRP), then this field 
+            shall be set to YES.
+
+    host-speed:
+        type: int
+        required: false
+        description: |
+            Indicates the maximum USB speed supported when communicating as a 
+            USB2 or USB3.2 host or hub.
+            
+            Valid options are:
+            0 - USB 2
+            1 - USB 3.2 Gen 1x1
+            2 - USB 3.2 Gen 2x1
+            3 - USB 3.2 Gen 1x2
+            4 - USB 3.2 Gen 2x2
+            
+            If Connector_Type is set to 3 (Micro-A/B), then this field shall be 
+            set to 0 (USB 2).
+            
+            If Host_Supports_USB_Data is not set to YES, then this field shall 
+            be ignored by Testers.
+
+    host-contains-captive-retimer:
+        type: boolean
+        required: false
+        description: |
+            Does this Component have an associated re-timer?
+            
+            If Host_Supports_USB_Data is not set to YES, then this field shall 
+            be ignored by Testers.
+
+    host-truncates-dp-for-tdhpresponse:
+        type: boolean
+        required: false
+        description: |
+            When communicating as a host, does this Component truncate Data 
+            Packets in order to meet the timing requirements for tDHPResponse?
+            
+            If Host_Speed is not set in the range 1 - 4 (any USB 3.2 Gen XxY) 
+            then this field shall be ignored by Testers.
+            
+            If Host_Supports_USB_Data is not set to YES, then this field shall 
+            be ignored by Testers.
+
+    host-gen1x1-tlinkturnaround:
+        type: int
+        required: false
+        description: |
+            tLinkTurnaround is defined as the quantity tDHPResponse – tDPacket, 
+            where tDHPResponse and tDPacket are as defined in [USB3.2]. When 
+            communicating as a host operating at gen1x1, valid values are in 
+            the range 400ns - 1500ns.
+            
+            If Host_Truncates_DP_For_tDHPResponse is not set to YES, then this 
+            field shall be ignored by Testers.
+
+    host-gen2x1-tlinkturnaround:
+        type: int
+        required: false
+        description: |
+            tLinkTurnaround is defined as the quantity tDHPResponse – tDPacket, 
+            where tDHPResponse and tDPacket are as defined in [USB3.2]. When 
+            communicating as a host operating at gen2x1, valid values are in the 
+            range 700ns - 1500ns.
+            
+            If Host_Speed is not set to 2 (USB 3.2 Gen 2x1) or 4 
+            (USB 3.2 Gen 2x2) or Host_Truncates_DP_For_tDHPResponse is not set 
+            to YES, then this field shall be ignored by Testers.
+
+    host-is-embedded:
+        type: boolean
+        required: false
+        description: |
+            Is this Component part of an Embedded Host? An Embedded Host is a 
+            specialized USB Host with minimal functionality designed to work 
+            with a specific list of peripherals.
+
+    host-suspend-supported:
+        type: boolean
+        required: false
+        description: |
+            Does the embedded host to which this Component belongs support USB 
+            Suspend?
+            
+            If Host_Supports_USB_Data is not set to YES, then this field shall 
+            be ignored by Testers.
+            
+            If Host_Is_Embedded is set to NO, then this field shall be set to 
+            YES.
+
+    is-dfp-on-hub:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether this Component is a Downstream Facing Port of a 
+            USB Hub.
+            
+            If Connector_Type is set to 2 (Type-C), then this field shall be set 
+            to the value of Type_C_Port_On_Hub.
+            
+            If Host_Supports_USB_Data is not set to YES, then this field shall 
+            be ignored by Testers.
+
+    bc-1-2-charging-port-type:
+        type: int
+        required: false
+        description: |
+            What BC 1.2 charging capabilities does this Component support? 
+            
+            Valid options are:
+            0 - DCP
+            1 - CDP
+            2 - Both
+            
+            This field shall be ignored by Testers if BC_1_2_Support is not set 
+            to 1 (Charging Port, or 3 (Both)).
+
+    pd-power-as-source:
+        type: int
+        required: false
+        description: |
+            An ECR to the V2.0 PD Specification has established a new set of 
+            Power Rules, superseding the earlier Profile Rules. The vendor of a 
+            Source Capable device shall specify a PD Power level (PDP) in mW. 
+            This is used by the Tester in conjunction with the Normative 
+            Voltages and Currents Table to determine the capabilities which may 
+            be offered by the Source. Valid values are in the range 500 - 240000, 
+            where the value shall be exactly divisible by 500 if it is less than 
+            10000, and shall be exactly divisible by 1000 if it is greater than 
+            or equal to 10000.
+
+    epr-supported-as-src:
+        type: boolean
+        required: false
+        description: |
+            Is the current Port Extended Power Range (EPR) capable as a Source?
+            
+            If the Complete PD Specification Number is less than 3110h, then 
+            this field shall be set to NO.
+            
+            If the Complete PD Specification Number is invalid, then this field 
+            shall be ignored by Testers.
+
+    usb-suspend-may-be-cleared:
+        type: boolean
+        required: false
+        description: |
+            In Source_Capabilities there is a bit called USB Suspend Supported, 
+            which is normally set to one, but may be cleared to 0 to signal to 
+            the sink that the sink need not obey USB Suspend.
+            
+            If the Qualifying Product (as a Source) will ever set USB Suspend 
+            Supported to a 0, then the VIF shall set this field to YES. 
+            Otherwise, it shall be set to NO.
+
+    sends-pings:
+        type: boolean
+        required: false
+        description: |
+            Set to YES if Qualifying Product sends Ping messages when operating 
+            as a source. Sending Ping messages is optional (and unnecessary 
+            when communicating over a USB Type-C cable).
+
+    fr-swap-type-c-current-capability-as-initial-sink:
+        type: int
+        required: false
+        description: |
+            This field is used to determine if the Qualifying Product supports 
+            Fast Role Swap in initial Sink role, and if so, what current it 
+            supplies as a new Source. This parameter is not part of any PD 
+            message.
+            Valid options are:
+            0 - FR_Swap not supported
+            1 - Default USB Power
+            2 - 1.5A @ 5V
+            3 - 3A @ 5V
+            If PD_Specification_Revision is not set, then this field shall be 
+            ignored by Testers.
+            If PD_Specification_Revision is set to 1 (Revision 2), then this 
+            field shall be ignored by Testers.
+
+    master-port:
+        type: boolean
+        required: false
+        description: |
+            Set to YES if this Component is a Master Port as defined in 
+            [USBType-C2.0]. A Master Port is one which, upon receipt of a BIST 
+            Message with a BIST Shared Test Mode Entry BIST Data Object, enters 
+            the BIST Shared Capacity Test Mode.
+            
+            If PD_Specification_Revision is set to 1 (Revision 2) then this 
+            field shall be ignored by Testers.
+
+    num-src-pdos:
+        type: int
+        required: false
+        description: |
+            The number of Source Power Data Objects (PDOs) returned by the Port 
+            in a Source_Capabilities message. Valid values are in the range 
+            1 - 7.
+            
+            If EPR_Supported_As_Src is set to NO, then this field shall be equal 
+            to the number of Source PDOs defined for this Port.
+            
+            If EPR_Supported_As_Src is set to YES, then this field shall be 
+            strictly less than the number of Source PDOs defined for this Port.
+
+    pd-oc-protection:
+        type: boolean
+        required: false
+        description: |
+            Does the Qualifying Product support Over-Current Protection (OCP)?
+            If this Component supports USB Power Delivery, then it is required 
+            to support OCP. However, a Qualifying Product may set this field to 
+            NO in order to notify Testers that they have not yet implemented OCP 
+            and that Testers should not run tests that could harm it.
+
+    pd-ocp-method:
+        type: int
+        required: false
+        description: |
+            What method does the Qualifying Product use to implement OCP?
+            Valid options are:
+            0 – Over-Current Response
+            1 – Under-Voltage Response
+            2 – Both
+            If PD_OC_Protection is not set to YES, then this field shall be 
+            ignored by Testers.
+
+    srcpdolist:
+        type: phandle
+        required: false
+        description: |
+            Contains one or more SrcPDO elements
+
+    pd-power-as-sink:
+        type: int
+        required: false
+        description: |
+            The vendor of a Sink Capable device shall specify a PD Power level 
+            (PDP) in mW. This is used by the Tester in conjunction with the 
+            Normative Voltages and Currents Table to determine the maximum 
+            capabilities which may be required by the Sink.
+            
+            Valid values are in the range 0 - 240000, where the value shall be 
+            exactly divisible by 500 if it is less than 10000 and shall be 
+            exactly divisible by 1000 if it is greater than or equal to 10000.
+
+    epr-supported-as-snk:
+        type: boolean
+        required: false
+        description: |
+            Is the current Port Extended Power Range (EPR) capable as a Sink?
+            If the Complete PD Specification Number is less than 3110h, then 
+            this field shall be set to NO.
+            If the Complete PD Specification Number is invalid, then this field 
+            shall be ignored by Testers.
+
+    no-usb-suspend-may-be-set:
+        type: boolean
+        required: false
+        description: |
+            In a Request message there is a bit called No USB Suspend, which the 
+            Sink sets to one if it wishes to request that it need not obey USB 
+            Suspend, but instead be allowed to continue to draw power according 
+            to its PD contract.
+            
+            If the Qualifying Product (as a Sink) will ever set No USB Suspend 
+            to a 1, then the VIF shall set this field to YES. Otherwise, it 
+            should be set to NO.
+
+    giveback-may-be-set:
+        type: boolean
+        required: false
+        description: |
+            In a Request message there is a bit called Giveback, which the Sink 
+            sets to 1 if it is prepared to lower its Operating Current to its 
+            Minimum Operating Current, on demand.
+
+            If the Qualifying Product will ever set this bit in the test 
+            configuration, then it shall set this field to YES. Otherwise, it 
+            should be set to NO.
+
+    higher-capability-set:
+        type: boolean
+        required: false
+        description: |
+            In a Sink_Capabilities message there is a bit called 
+            HigherCapability, which the Sink sets to 1 if it needs more than 
+            vSafe5V (e.g., 12V) to provide full functionality.
+            
+            If the Qualifying Product sets this bit in the configuration 
+            described by the VIF, then this field shall be set to YES, 
+            otherwise, to NO.
+
+    fr-swap-reqd-type-c-current-as-initial-source:
+        type: int
+        required: false
+        description: |
+            This field is used to determine if the Qualifying Product supports 
+            Fast Role Swap in initial Source role.
+            
+            In a Sink_Capabilities message there is a field called Fast Role 
+            Swap USB Type-C Current, in which the initial Source describes 
+            whether it supports Fast Role Swap to become a new Sink, and if so, 
+            what current it requires as a new Sink.
+            Valid options are:
+            0 - FR_Swap not supported
+            1 - Default USB Power
+            2 - 1.5A @ 5V
+            3 - 3A @ 5V
+            
+            If PD_Specification_Revision is not set, then this field shall be 
+            ignored by Testers.
+            
+            If PD_Specification_Revision is set to 1 (Revision 2), then this 
+            field shall be ignored by Testers.
+
+    num-snk-pdos:
+        type: int
+        required: false
+        description: |
+            The number of Sink Power Data Objects (PDOs) returned by the Port 
+            in a Sink_Capabilities message.
+            Valid values are in the range 1 - 7.
+            
+            If EPR_Supported_As_Snk is set to NO, then this field shall be 
+            equal to the number of Sink PDOs defined for this Port.
+            
+            If EPR_Supported_As_Snk is set to YES, then this field shall be 
+            strictly less than the number of Sink PDOs defined for this Port.
+
+    snkpdolist:
+        type: phandle
+        required: false
+        description: |
+            Contains one or more SnkPDO elements.
+
+    accepts-pr-swap-as-src:
+        type: boolean
+        required: false
+        description: |
+            Set to YES if Port ever supports a PR_Swap request while operating 
+            as a Source.
+
+    accepts-pr-swap-as-snk:
+        type: boolean
+        required: false
+        description: |
+            Set to YES if Port ever supports a PR_Swap request while operating 
+            as a Sink.
+
+    requests-pr-swap-as-src:
+        type: boolean
+        required: false
+        description: |
+            Set to YES if the Qualifying Product may send a PR_Swap request 
+            while operating as a Source.
+
+    requests-pr-swap-as-snk:
+        type: boolean
+        required: false
+        description: |
+            Set to YES if the Qualifying Product may send a PR_Swap request 
+            while operating as a Sink.
+
+    fr-swap-supported-as-initial-sink:
+        type: boolean
+        required: false
+        description: |
+            This field is used to determine if the Qualifying Product supports 
+            Fast Role Swap in initial Sink role.
+            
+            If FR_Swap_Type_C_Current_Capability_As_Initial_Sink is not set, 
+            then this field shall be ignored by testers.
+            
+            If FR_Swap_Type_C_Current_Capability_As_Initial_Sink is set to 0 
+            (FR_Swap not supported), then this field shall be set to NO.
+            
+            If FR_Swap_Type_C_Current_Capability_As_Initial_Sink is not set to 
+            0 (FR_Swap not supported), then this field shall be set to YES.
+
+    xid-sop:
+        type: int
+        required: false
+        description: |
+            A decimal number assigned by USB-IF prior to certification.
+            Valid values are in the range 0 - 1048575.
+
+    data-capable-as-usb-host-sop:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether the Qualifying Product is capable of enumerating 
+            USB Devices. This field shall be set to the same value as 
+            Type_C_Can_Act_As_Host.
+
+    data-capable-as-usb-device-sop:
+        type: boolean
+        required: false
+        description: |
+            Indicates whether the Qualifying Product is capable of enumerating 
+            as a USB Device. This field shall be set to the same value as 
+            Type_C_Can_Act_As_Device.
+
+    product-type-ufp-sop:
+        type: int
+        required: false
+        description: |
+            What is the product type of the Qualifying Product when acting as 
+            an Upstream Facing Port?
+            
+            If Type_C_Can_Act_As_Device is set to YES, then valid options are:
+            1 - PDUSB Hub
+            2 - PDUSB Peripheral
+            
+            If Type_C_Can_Act_As_Device is not set to YES, and 
+            Type_C_State_Machine is set to 0 (SRC), then valid options are:
+            0 - Undefined
+            
+            If Type_C_Can_Act_As_Device is not set to YES and 
+            Type_C_State_Machine is not set to 0 (SRC), then valid options are:
+            0 - Undefined
+            3 - PSD
+
+    product-type-dfp-sop:
+        type: int
+        required: false
+        description: |
+            What is the product type of the Qualifying Product when acting as a 
+            Downstream Facing Port?
+            
+            Valid options are:
+            0 - Undefined
+            1 - PDUSB Hub
+            2 - PDUSB Host
+            3 - Power Brick
+            
+            If PD_Specification_Revision is not set to 2 (Revision 3), then this 
+            field shall be ignored by Testers.
+
+    dfp-vdo-port-number:
+        type: int
+        required: false
+        description: |
+            The Port Number for this Component as given in the DFP VDO.
+            
+            This field shall be unique to each Component for which it is required.
+            
+            This field shall have the same value as the numerical portion of 
+            Port_Label.
+            
+            If Responds_To_Discov_SOP_DFP is not set to YES, then this field 
+            shall be ignored by Testers.
+            
+            If the Complete PD Specification Number is less than 3020h, then 
+            this field shall be ignored by Testers.
+
+    modal-operation-supported-sop:
+        type: boolean
+        required: false
+        description: |
+            Does the product support Modes?
+            
+            This field shall be set to the value of Type_C_Is_Alt_Mode_Adapter.
+
+    usb-vid-sop:
+        type: int
+        required: false
+        description: |
+            A unique 16-bit number, assigned to the Vendor by USB-IF. For USB 
+            Devices or Hubs which support USB communications the Vendor ID 
+            field shall be identical to the Vendor ID field defined in the 
+            product’s USB Device Descriptor (see [USB2.0] and [USB3.2]). The 
+            valid values in the range 0h - FFFFh (0 - 65535).
+
+    pid-sop:
+        type: int
+        required: false
+        description: |
+            A unique number assigned by the Vendor ID holder identifying the 
+            product. The valid values in the range 0h - FFFFh (0 - 65535).
+
+    bcd-device-sop:
+        type: int
+        required: false
+        description: |
+            A unique number assigned by the Vendor ID holder containing identity 
+            information relevant to the release version of the product. The 
+            valid values in the range 0h - FFFFh (0 - 65535).
+
+    product-total-source-power-mw:
+        type: int
+        required: false
+        description: |
+            The total power in milliwatts, rounded up to the nearest milliwatt, 
+            that the Qualifying Product can deliver across all its ports.
+            
+            Valid values are in the range 0 - 2400000 (0 - 2400000 mW).
+
+            This field shall have the same value for all components wherein 
+            this field is required.
+
+    port-source-power-type:
+        type: int
+        required: false
+        description: |
+            Is the Qualifying Product guaranteed to advertise all PDOs it is
+            capable of supporting (power is assured), or is it part of a power 
+            gang with other ports, and may reduce its output accordingly 
+            (power is shared)? Valid options are:
+            0 - Assured
+            1 - Shared

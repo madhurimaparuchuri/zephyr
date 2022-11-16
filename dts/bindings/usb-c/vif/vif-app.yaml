@@ -1,0 +1,31 @@
+# Copyright 2022 The Chromium OS Authors
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+    It describes the application that was used to generate the VIF
+
+    This is based on VIF XML file schema of /VIF/VIF_App in
+    https://compliance.usb.org/cv/VendorInfoFile/Schemas/Current/VendorInfoFile.xsd
+
+compatible: "vif,vif-app"
+
+include: base.yaml
+
+properties:
+    vendor:
+        type: string
+        required: true
+        description: |
+            The vendor of the application
+
+    name:
+        type: string
+        required: true
+        description: |
+            The name of the application
+
+    version:
+        type: string
+        required: true
+        description: |
+            The version number of the application

@@ -1,0 +1,26 @@
+# Copyright 2022 The Chromium OS Authors
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+    A list of collection of fields that characterize PCIe Endpoints within a router.
+
+    This is based on VIF XML file schema of vif:PCIeEndpointListType in:
+    https://compliance.usb.org/cv/VendorInfoFile/Schemas/Current/VendorInfoFile.xsd
+
+compatible: "vif,pcie-endpoint-list"
+
+include: base.yaml
+
+properties:
+    pcie-endpoint:
+        type: phandles
+        required: false
+        description: |
+            The fields represent the parameters for a single PCIe Endpoint. 
+            Maximum number of phandle is 64
+        
+            Fields in this section shall be ignored by Testers if the Qualifying
+            Product is not a USB4 Dock or USB4 Peripheral.
+        
+            Fields in this section shall be ignored by Testers if 
+            USB4_Num_PCIe_DN_Adapters is set to 0.

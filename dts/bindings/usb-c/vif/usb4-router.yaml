@@ -1,0 +1,184 @@
+# Copyright 2022 The Chromium OS Authors
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+    A collection of fields that characterize a USB4 Router
+
+    This is based on VIF XML file schema of Usb4Router in:
+    https://compliance.usb.org/cv/VendorInfoFile/Schemas/Current/VendorInfoFile.xsd
+
+compatible: "vif,usb4-router"
+
+include: base.yaml
+
+properties:
+    usb4-router-id:
+        type: int
+        required: false
+        description: |
+            Index number assigned to uniquely identify Router within the product
+            
+            Valid values are in the range 0 - 15 and shall be less than the 
+            number of Routers in the Qualifying Product.
+
+    usb4-silicon-vid:
+        type: int
+        required: false
+        description: |
+            The Vendor Identification Number (VID) of the Vendor providing the 
+            silicon for the Router.
+
+            This value is assigned by USB-IF to the silicon vendor
+          
+            The valid values in the range 0h - FFFFh (0 - 65535).
+
+    usb4-num-lane-adapters:
+        type: int
+        required: false
+        description: |
+            The total number of Lane Adapters on the Router. Valid values are in 
+            the range 2 - 62.
+            
+            This field shall be greater than or equal to the number of USB4 
+            Ports associated with this Router multiplied by 2.
+
+    usb4-num-usb3-dn-adapters:
+        type: int
+        required: false
+        description: |
+            The number of Downstream USB3 Adapters on the Router. Valid values 
+            are in the range 1 - 63.
+            
+            If the Qualifying Product is not a USB4 Host or a USB4 Hub, then 
+            this field shall be ignored by Testers.
+
+    usb4-num-dp-in-adapters:
+        type: int
+        required: false
+        description: |
+            The number of DisplayPort IN Adapters on the Router. Valid values 
+            are in the range 0 - 63.
+            
+            If the Qualifying Product is a USB4 Host, then the sum of this field 
+            over all routers shall be greater than 0.
+            
+            If the Qualifying Product is a USB4 Peripheral that supports DP 
+            Tunneling (USB4_DP_Tunneling_Supported is set to YES on its USB4 UFP 
+            and the USB4 UFP is associated with this Router), then at least one 
+            of this field and USB4_Num_DP_OUT_Adapters shall be greater than 0.
+
+    usb4-num-dp-out-adapters:
+        type: int
+        required: false
+        description: |
+            The number of DisplayPort OUT Adapters on the Router. Valid values 
+            are in the range 0 - 63.
+            
+            USB4 Hubs shall not set this field to 0.
+            
+            If the Qualifying Product is a USB4 Peripheral that supports DP 
+            Tunneling (USB4_DP_Tunneling_Supported is set to YES on its USB4 
+            UFP) and the USB4 UFP is associated with this Router), then at least 
+            one of this field and USB4_Num_DP_IN_Adapters shall be greater than 0.
+
+    usb4-num-pcie-dn-adapters:
+        type: int
+        required: false
+        description: |
+            The number of PCIe Downstream Adapters on the Router. Valid values 
+            are in the range 0 - 63.
+            
+            If USB4_PCIe_Tunneling_Supported is set to YES on a USB4 Port 
+            associated with this Router, then this field shall be greater than 0
+
+    usb4-tbt3-not-supported:
+        type: int
+        required: false
+        description: |
+            Indicates whether the product has one or more Thunderbolt 
+            3-compatible Ports on this Router. Valid options are:
+                0 - TBT3-Compatible
+                1 - Not TBT3-Compatible
+            
+            This field shall be set to 0 (TBT3-Compatible) if 
+            USB4_TBT3_Compatibility_Supported is set to YES on any USB4 Port 
+            associated with this Router.
+            
+            This field shall be set to 1 (Not TBT3-Compatible) if 
+            USB4_TBT3_Compatibility_Supported is not set to YES on any USB4 Port 
+            associated with this Router.
+
+    usb4-pcie-wake-supported:
+        type: boolean
+        required: false
+        description: |
+            Does the Qualifying Product support PCIe Wake? 
+            
+            This field shall be set to NO if USB4_Num_PCIe_DN_Adapters is set to 0
+
+    usb4-usb3-wake-supported:
+        type: boolean
+        required: false
+        description: |
+            Does the Qualifying Product support USB3 Wake?
+            
+            If the Qualifying Product does not support USB3 tunneling on the 
+            Router (USB4_USB3_Tunneling_Supported is set to NO on all USB4 Ports 
+            associated with this Router), then this field shall be set to NO
+
+    usb4-num-unused-adapters:
+        type: int
+        required: false
+        description: |
+            The number of Adapters in the Router that are not wired to a USB-C 
+            Connector. Valid values are in the range 0 - 63.
+
+    usb4-tbt3-vid:
+        type: int
+        required: false
+        description: |
+            The Thunderbolt 3 Vendor ID (VID), assigned by Intel. The valid 
+            values in the range 0h - FFFFh (0 - 65535)
+            
+            If USB4_TBT3_Not_Supported is not set to 0 (TBT3-Compatible), then 
+            this field shall be ignored by Testers.
+
+    usb4-pcie-switch-vendor-id:
+        type: int
+        required: false
+        description: |
+            Vendor ID of PCIe switch connected to Router. This value is assigned 
+            by PCIe SIG. The valid values in the range 0h - FFFFh (0 - 65535).
+            
+            This field shall be ignored by Testers if USB4_Num_PCIe_DN_Adapters 
+            is set to 0.
+
+    usb4-pcie-switch-device-id:
+        type: int
+        required: false
+        description: |
+            Device ID of PCIe switch connected to Router. This value is assigned 
+            by the vendor. The valid values in the range 0h - FFFFh (0 - 65535).
+            
+            This field shall be ignored by Testers if USB4_Num_PCIe_DN_Adapters 
+            is set to 0.
+
+    usb4-num-pcie-endpoints:
+        type: int
+        required: false
+        description: |
+            The number of PCIe endpoints connected to Router. This includes 
+            endpoints for the internal PCIe device and any other embedded PCIe 
+            devices. Valid values are in the range 1 - 64.
+            
+            This field shall be ignored by Testers if the Qualifying Product is 
+            not a USB4 Dock or USB4 Peripheral.
+            
+            This field shall be ignored by Testers if USB4_Num_PCIe_DN_Adapters 
+            is set to 0.
+
+    pcie-endpoint-list:
+        type: phandle
+        required: false
+        description: |
+            It represent the list of PCIe Endpoints
